@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ScholarBot - Your Edu-Advice CRM</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Refined color palette for a cleaner, more professional look */
+      --primary-500: #6366f1; /* indigo-500 */
+      --primary-600: #4f46e5; /* indigo-600 */
+      --primary-700: #4338ca; /* indigo-700 */
+      --accent-500: #f59e0b; /* Amber or similar for secondary actions */
+      --gray-50: #f9fafb; /* Lighter, almost white background */
+      --gray-100: #f3f4f6; /* Softer light gray */
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937; /* Darker text */
+      --gray-900: #111827;
+    }
+
+    html, body {
+      font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--gray-50);
+    }
+    
+    .scroll-container::-webkit-scrollbar { width: 6px; }
+    .scroll-container::-webkit-scrollbar-track { background: transparent; }
+    .scroll-container::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
+    .scroll-container::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
+    
+    .prose {
+      font-size: 1rem;
+      line-height: 1.75;
+      color: var(--gray-700);
+    }
+    .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+      margin-bottom: 0.75em;
+      margin-top: 1.5em;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--gray-900);
+    }
+    .prose h1 { font-size: 2em; }
+    .prose h2 { font-size: 1.75em; }
+    .prose h3 { font-size: 1.5em; }
+    .prose ul, .prose ol {
+      margin-top: 0.75em;
+      margin-bottom: 0.75em;
+      padding-left: 1.5em;
+    }
+    .prose li {
+      margin-bottom: 0.5em;
+    }
+    .prose a {
+      color: var(--primary-600);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      font-weight: 600;
+    }
+    .prose a:hover {
+      text-decoration-color: var(--primary-500);
+    }
+    .prose strong {
+      font-weight: 700;
+      color: var(--gray-900);
+    }
+    .prose code {
+      background-color: var(--gray-100);
+      padding: 0.2em 0.4em;
+      border-radius: 6px;
+      font-size: 0.875em;
+      color: var(--primary-700);
+      border: 1px solid var(--gray-200);
+    }
+    .prose pre {
+      background-color: var(--gray-800);
+      color: var(--gray-100);
+      padding: 1em;
+      border-radius: 12px;
+      overflow-x: auto;
+      font-size: 0.875em;
+      margin-top: 1em;
+      margin-bottom: 1em;
+    }
+    .prose blockquote {
+      border-left: 5px solid var(--primary-500);
+      padding-left: 1.25em;
+      color: var(--gray-600);
+      margin-top: 1em;
+      margin-bottom: 1em;
+      background-color: var(--gray-100);
+      padding: 1em 1.5em;
+      border-radius: 8px;
+    }
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1em;
+      margin-bottom: 1em;
+      border: 1px solid var(--gray-200);
+    }
+    .prose th, .prose td {
+      border: 1px solid var(--gray-200);
+      padding: 0.75em;
+      text-align: left;
+    }
+    .prose th {
+      background-color: var(--gray-100);
+      font-weight: 600;
+      color: var(--gray-700);
+    }
+
+    .sidebar-item {
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .sidebar-item:hover {
+        transform: translateX(2px);
+    }
+    .sidebar-item .delete-btn {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+    .sidebar-item:hover .delete-btn {
+        opacity: 1;
+    }
+    #micBtn.recording {
+        animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+    }
+
+    .bg-pattern {
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239CA3AF' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0 0v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM16 14v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0 0v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      background-size: 60px 60px;
+    }
+    
+    .chat-bubble-user {
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+    .chat-bubble-bot {
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .button-primary {
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+    }
+    .button-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(79, 70, 229, 0.3);
+    }
+    .button-secondary:hover {
+      background-color: var(--gray-100);
+      color: var(--primary-600);
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+<div class="flex h-screen w-full overflow-hidden">
+    <aside class="w-72 bg-white border-r border-gray-200 shadow-lg flex-col p-5 hidden md:flex z-10">
+        <div class="flex items-center space-x-3 mb-10 mt-2">
+            <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-2.5 rounded-xl shadow-lg">
+              <svg class="w-7 h-7 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.627 48.627 0 0 1 12 20.904a48.627 48.627 0 0 1 8.232-4.41a60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.57 50.57 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.906 59.906 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" /></svg>
+            </div>
+            <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">ScholarBot</h1>
+        </div>
+        <button id="newChatBtn" class="w-full flex items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md button-primary" aria-label="Start a new conversation">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+            </svg>
+            <span>New Conversation</span>
+        </button>
+        <div class="mt-8 flex-1 overflow-y-auto scroll-container pr-2">
+            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Conversations</h2>
+            <div id="recent-chats-container" class="mt-2 space-y-1.5">
+            </div>
+        </div>
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <button id="clearAllBtn" class="w-full flex items-center justify-center space-x-2 text-sm text-gray-500 hover:text-red-600 hover:bg-red-50 py-2.5 px-4 rounded-lg transition-colors" aria-label="Clear all conversations">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+                </svg>
+                <span>Clear History</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-screen bg-gray-50 bg-pattern relative">
+        <header class="p-4 flex justify-between items-center w-full border-b border-gray-200/80 bg-white shadow-sm z-10">
+             <div class="flex items-center">
+                <h2 class="text-lg font-semibold text-gray-800" id="chat-title">New Conversation</h2>
+            </div>
+            <div class="flex items-center space-x-4">
+                 <select id="roleSelector" class="bg-white border border-gray-300 rounded-lg px-3.5 py-2 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                    <option value="student">🎓 Student View</option>
+                    <option value="counselor">🧑‍💼 Counselor View</option>
+                </select>
+            </div>
+        </header>
+
+        <div id="chat-container" class="scroll-container flex-1 overflow-y-auto p-4 md:p-6 relative z-0">
+            <div id="welcome-screen" class="w-full max-w-4xl mx-auto flex flex-col items-center justify-center h-full text-center">
+                <div class="p-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-xl">
+                    <svg class="w-16 h-16 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.627 48.627 0 0 1 12 20.904a48.627 48.627 0 0 1 8.232-4.41a60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.57 50.57 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.906 59.906 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" /></svg>
+                </div>
+                <h2 id="welcome-heading" class="mt-8 text-4xl font-extrabold text-gray-900 tracking-tight">Hello! How can I help today?</h2>
+                <p id="welcome-subheading" class="mt-3 text-lg text-gray-600 max-w-2xl">I'm ScholarBot, your AI-powered education advisor, designed to simplify your study abroad journey.</p>
+                
+                <div id="suggestion-cards" class="mt-16 w-full grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl">
+                </div>
+            </div>
+            <div id="chat-log" class="w-full max-w-4xl mx-auto space-y-8 hidden">
+            </div>
+        </div>
+        
+        <div class="px-4 pb-4 w-full bg-gray-50/80 backdrop-blur-sm border-t border-gray-200/80 z-10">
+            <div class="w-full max-w-4xl mx-auto">
+                <form id="chatForm" class="w-full">
+                    <div class="relative w-full p-2 bg-white border border-gray-200/80 rounded-2xl shadow-lg flex items-center space-x-2 transition-all focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+                        <textarea id="userInput" class="flex-grow bg-transparent px-3 py-2.5 text-base text-gray-800 placeholder-gray-500 focus:outline-none resize-none" placeholder="Ask about universities, visas, or paste a URL..." rows="1" required></textarea>
+                        
+                        <button type="button" id="micBtn" title="Use Microphone" aria-label="Use Microphone" class="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-500 hover:text-indigo-600 transition-colors flex-shrink-0 button-secondary">
+                            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 0 1 6 0v8.25a3 3 0 0 1-3 3z" /></svg>
+                        </button>
+                        <button type="button" id="scrapeBtn" title="Scrape URL" aria-label="Scrape URL" class="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-500 hover:text-indigo-600 transition-colors flex-shrink-0 button-secondary">
+                             <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" /></svg>
+                        </button>
+                        <button type="submit" title="Send Message" aria-label="Send Message" class="bg-indigo-600 hover:bg-indigo-700 text-white h-10 w-10 flex items-center justify-center rounded-xl transition-all duration-300 transform hover:scale-105 flex-shrink-0 shadow-md button-primary">
+                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"> <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009.586 15H11a1 1 0 00.707-.293l.16-.16a1 1 0 00.293-.707V5.414a1 1 0 00-1.586-.816l-5.728 2.864A1 1 0 002 8.228V14a1 1 0 102 0V8.586l4.293-2.147a1 1 0 011.08.158l3.64 3.64a1 1 0 001.414-1.414l-3.64-3.64a1 1 0 00-.158-1.08z" /> </svg>
+                        </button>
+                    </div>
+                </form>
+                <p class="text-xs text-center text-gray-500 mt-2">ScholarBot is an AI assistant. Always verify important information with official sources.</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // --- DOM Elements ---
+    const chatLog = document.getElementById('chat-log');
+    const chatForm = document.getElementById("chatForm");
+    const userInput = document.getElementById("userInput");
+    const roleSelector = document.getElementById("roleSelector");
+    const scrapeBtn = document.getElementById("scrapeBtn");
+    const newChatBtn = document.getElementById("newChatBtn");
+    const clearAllBtn = document.getElementById("clearAllBtn");
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const welcomeHeading = document.getElementById('welcome-heading');
+    const welcomeSubheading = document.getElementById('welcome-subheading');
+    const suggestionCardsContainer = document.getElementById('suggestion-cards');
+    const recentChatsContainer = document.getElementById('recent-chats-container');
+    const chatTitle = document.getElementById('chat-title');
+    const micBtn = document.getElementById('micBtn');
+
+    // --- State Management ---
+    let allChats = [];
+    let activeChatId = null;
+    let isRecognizing = false;
+    let recognition;
+    
+    // --- Speech Recognition Setup ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+
+        recognition.onstart = () => {
+            isRecognizing = true;
+            micBtn.classList.add('recording', 'text-indigo-600');
+            micBtn.setAttribute('aria-label', 'Stop recording');
+        };
+
+        recognition.onend = () => {
+            isRecognizing = false;
+            micBtn.classList.remove('recording', 'text-indigo-600');
+            micBtn.setAttribute('aria-label', 'Use Microphone');
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[event.results.length - 1][0].transcript.trim();
+            userInput.value = transcript;
+            userInput.style.height = 'auto';
+            userInput.style.height = (userInput.scrollHeight) + 'px';
+        };
+
+        recognition.onerror = (event) => {
+            console.error("Speech recognition error", event.error);
+            isRecognizing = false;
+            micBtn.classList.remove('recording', 'text-indigo-600');
+            micBtn.setAttribute('aria-label', 'Use Microphone');
+        };
+    } else {
+        micBtn.style.display = 'none';
+        console.warn("Speech Recognition API not supported in this browser.");
+    }
+    
+    // ================== PROMPTS ==================
+    const studentSuggestions = [
+        { title: "Compare Countries", prompt: "Compare living costs and part-time work opportunities for students in Australia vs. Canada.", icon: "🌏" },
+        { title: "Help with SOP", prompt: "Help me outline a Statement of Purpose for a Master's in Business Analytics.", icon: "✍️" },
+        { title: "Career Prospects", prompt: "What are the job prospects in the US after an MS in Robotics?", icon: "🤖" },
+    ];
+    const counselorSuggestions = [
+        { title: "Shortlist Universities", prompt: "Suggest 3 ambitious, 3 moderate, and 3 safe US universities for a student with a 3.5 GPA and 320 GRE wanting an MS in CS.", icon: "🎯" },
+        { title: "Draft Reminder Email", prompt: "Draft a polite but firm reminder email for a student who needs to submit their financial documents.", icon: "✉️" },
+        { title: "Summarize Policy Changes", prompt: "Summarize the key changes to Canada's study permit regulations announced in the last 3 months.", icon: "🇨🇦" },
+    ];
+    
+    // --- Textarea and Audio ---
+    userInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            chatForm.dispatchEvent(new Event('submit', { cancelable: true }));
+        }
+    });
+
+    userInput.addEventListener('input', () => {
+        userInput.style.height = 'auto';
+        const maxHeight = 200; // max height in pixels
+        userInput.style.height = `${Math.min(userInput.scrollHeight, maxHeight)}px`;
+    });
+    
+    function playMessageAudio(buttonElement) {
+        const messageContent = buttonElement.closest('.flex-1').querySelector('.message-content').innerText;
+        if (!messageContent) return;
+
+        speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(messageContent);
+        utterance.lang = 'en-US';
+        
+        const originalIcon = buttonElement.innerHTML;
+        const playingIcon = `<svg class="w-5 h-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2.03358C13 1.4813 12.5523 1.03358 12 1.03358C11.4477 1.03358 11 1.4813 11 2.03358V22.0336C11 22.5859 11.4477 23.0336 12 23.0336C12.5523 23.0336 13 22.5859 13 22.0336V2.03358Z"></path><path d="M9 6.03358C9 5.4813 8.55228 5.03358 8 5.03358C7.44772 5.03358 7 5.4813 7 6.03358V18.0336C7 18.5859 7.44772 19.0336 8 19.0336C8.55228 19.0336 9 18.5859 9 18.0336V6.03358Z"></path><path d="M5 10.0336C5 9.4813 4.55228 9.03358 4 9.03358C3.44772 9.03358 3 9.4813 3 10.0336V14.0336C3 14.5859 3.44772 15.0336 4 15.0336C4.55228 15.0336 5 14.5859 5 14.0336V10.0336Z"></path><path d="M17 6.03358C17 5.4813 16.5523 5.03358 16 5.03358C15.4477 5.03358 15 5.4813 15 6.03358V18.0336C15 18.5859 15.4477 19.0336 16 19.0336C16.5523 19.0336 17 18.5859 17 18.0336V6.03358Z"></path><path d="M21 10.0336C21 9.4813 20.5523 9.03358 20 9.03358C19.4477 9.03358 19 9.4813 19 10.0336V14.0336C21 14.5859 20.5523 15.0336 20 15.0336C19.4477 15.0336 19 14.5859 19 14.0336V10.0336Z"></path></svg>`;
+        
+        buttonElement.setAttribute('aria-label', 'Stop reading aloud');
+        
+        utterance.onstart = () => {
+            buttonElement.innerHTML = playingIcon;
+            buttonElement.classList.add('bg-indigo-100');
+        };
+        utterance.onend = () => {
+            buttonElement.innerHTML = originalIcon;
+            buttonElement.classList.remove('bg-indigo-100');
+            buttonElement.setAttribute('aria-label', 'Read Aloud');
+        };
+        utterance.onerror = () => {
+             buttonElement.innerHTML = originalIcon;
+             buttonElement.classList.remove('bg-indigo-100');
+             buttonElement.setAttribute('aria-label', 'Read Aloud');
+        };
+        
+        speechSynthesis.speak(utterance);
+    }
+    
+    // --- Chat History Management ---
+    function saveChats() {
+        localStorage.setItem('scholarBotChats', JSON.stringify(allChats));
+    }
+
+    function loadChats() {
+        const saved = localStorage.getItem('scholarBotChats');
+        if (saved) {
+            allChats = JSON.parse(saved);
+        }
+    }
+
+    function renderSidebar() {
+        recentChatsContainer.innerHTML = '';
+        if (allChats.length === 0) {
+            recentChatsContainer.innerHTML = `<p class="text-sm text-gray-400 px-2 text-center py-4">No conversations yet.</p>`;
+            clearAllBtn.classList.add('hidden');
+            return;
+        }
+        clearAllBtn.classList.remove('hidden');
+        allChats.forEach(chat => {
+            const isActive = chat.id === activeChatId;
+            const item = document.createElement('div');
+            item.className = `sidebar-item group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all duration-200 ${isActive ? 'bg-indigo-100/70' : 'hover:bg-gray-100'}`;
+            item.setAttribute('data-id', chat.id);
+            item.setAttribute('role', 'button');
+            item.setAttribute('aria-label', `Select conversation: ${chat.title}`);
+            item.innerHTML = `
+                <span class="text-sm font-medium truncate ${isActive ? 'text-indigo-800' : 'text-gray-700'}">${chat.title}</span>
+                <button class="delete-btn opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-600 transition-opacity p-1 -mr-1 rounded-md hover:bg-red-50" data-id="${chat.id}" title="Delete Chat" aria-label="Delete chat">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            `;
+            item.addEventListener('click', (e) => {
+                if (e.target.closest('.delete-btn')) {
+                    deleteChat(chat.id);
+                } else {
+                    loadChat(chat.id);
+                }
+            });
+            recentChatsContainer.appendChild(item);
+        });
+    }
+
+    function deleteChat(chatId) {
+        if (!confirm("Are you sure you want to delete this conversation?")) return;
+        
+        allChats = allChats.filter(c => c.id !== chatId);
+        saveChats();
+        
+        if (activeChatId === chatId) {
+            if (allChats.length > 0) {
+                loadChat(allChats[0].id);
+            } else {
+                startNewChat();
+            }
+        } else {
+            renderSidebar();
+        }
+    }
+
+    function loadChat(chatId) {
+        const chat = allChats.find(c => c.id === chatId);
+        if (!chat) return;
+
+        activeChatId = chatId;
+        roleSelector.value = chat.role;
+        chatLog.innerHTML = '';
+        chatTitle.textContent = chat.title;
+
+        if (chat.history.length > 0) {
+            chat.history.forEach(msg => addMessage(msg.role === 'user' ? 'You' : 'ScholarBot', msg.content, true));
+            welcomeScreen.classList.add('hidden');
+            chatLog.classList.remove('hidden');
+        } else {
+            welcomeScreen.classList.remove('hidden');
+            chatLog.classList.add('hidden');
+            updateWelcomeScreen();
+        }
+
+        renderSidebar();
+        document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
+    }
+
+    // --- UI/DOM Manipulation Functions ---
+    function updateWelcomeScreen() {
+        const role = roleSelector.value;
+        const suggestions = role === 'student' ? studentSuggestions : counselorSuggestions;
+        
+        welcomeHeading.textContent = role === 'student' ? 'Ready to Start Your Study Abroad Journey?' : 'Your Counselor Co-pilot Awaits';
+        welcomeSubheading.textContent = role === 'student' ? `Ask me anything about universities, applications, or student life!` : `How can I streamline your workflow today?`;
+
+        suggestionCardsContainer.innerHTML = '';
+        suggestions.forEach(s => {
+            const card = document.createElement('div');
+            card.className = 'bg-white p-6 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col items-start text-left';
+            card.innerHTML = `
+                <div class="flex-shrink-0 mb-4"><span class="text-4xl">${s.icon}</span></div>
+                <div class="flex-grow">
+                    <p class="font-bold text-lg text-gray-800 mb-1">${s.title}</p>
+                    <p class="text-sm text-gray-600">${s.prompt}</p>
+                </div>`;
+            card.onclick = () => {
+                userInput.value = s.prompt;
+                userInput.style.height = 'auto';
+                userInput.style.height = (userInput.scrollHeight) + 'px';
+                chatForm.dispatchEvent(new Event('submit'));
+            };
+            suggestionCardsContainer.appendChild(card);
+        });
+    }
+
+    function formatMessage(content) {
+        const htmlContent = marked.parse(content);
+        return `<div class="prose prose-sm prose-inter max-w-none text-gray-700">${htmlContent}</div>`;
+    }
+
+    function addMessage(sender, message, isLoadingHistory = false) {
+        const isBot = sender === "ScholarBot";
+        const msgContainer = document.createElement('div');
+        msgContainer.className = `flex items-start gap-3 ${isBot ? '' : 'justify-end'}`;
+
+        const botAvatar = `<div class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0 text-white font-semibold text-base shadow-sm">S</div>`;
+        const userAvatar = `<div class="w-9 h-9 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0 text-white font-semibold text-base shadow-sm">Y</div>`;
+
+        if (isBot) {
+            const actionButtons = `
+                <div class="mt-3 border-t border-gray-100 pt-2 flex items-center gap-1">
+                    <button onclick="playMessageAudio(this)" class="p-1.5 rounded-md hover:bg-gray-100 text-gray-500 transition-colors" title="Read Aloud" aria-label="Read Aloud">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 0 1 0 12.728M16.463 8.288a5.25 5.25 0 0 1 0 7.424M6.75 8.25l4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"></path></svg>
+                    </button>
+                    <button onclick="copyToClipboard(this)" class="p-1.5 rounded-md hover:bg-gray-100 text-gray-500" title="Copy" aria-label="Copy message content">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3.25H5.25a2 2 0 0 0-2 2v10.5a2 2 0 0 0 2 2h10.5a2 2 0 0 0 2-2V5.25a2 2 0 0 0-2-2H13.5v-1h-1v1H7.5v-1h-1v1zM6.25 5.25h8.5V16a.75.75 0 0 1-.75.75H6.5a.75.75 0 0 1-.75-.75V5.25z"/></svg>
+                    </button>
+                </div>`;
+            
+            msgContainer.innerHTML = `
+                ${botAvatar}
+                <div class="flex-1 min-w-0 bg-white border border-gray-200 rounded-xl rounded-tl-none p-4 shadow-sm chat-bubble-bot">
+                    <div class="font-semibold text-sm text-gray-800 mb-1">ScholarBot</div>
+                    <div class="message-content">${formatMessage(message)}</div>
+                     ${isLoadingHistory ? '' : actionButtons} </div>`;
+        } else {
+             msgContainer.innerHTML = `
+                <div class="flex-1 min-w-0 bg-indigo-600 text-white rounded-xl rounded-tr-none p-4 shadow-sm chat-bubble-user">
+                    <p class="message-content break-words text-sm">${message}</p>
+                </div>
+                ${userAvatar}`;
+        }
+        chatLog.appendChild(msgContainer);
+    }
+    
+    function addThinkingMessage() {
+        const msgDiv = document.createElement("div");
+        msgDiv.id = "thinking-message";
+        msgDiv.className = 'flex items-start gap-3';
+        
+        const botAvatar = `<div class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0 text-white font-semibold text-base animate-pulse shadow-sm">S</div>`;
+        const thinkingDots = `<div class="flex-1 min-w-0 bg-white border border-gray-200 rounded-xl rounded-tl-none p-4 shadow-sm">
+                                <div class="flex items-center space-x-2 py-1" aria-label="ScholarBot is typing">
+                                    <div class="w-2.5 h-2.5 bg-gray-300 rounded-full animate-pulse"></div>
+                                    <div class="w-2.5 h-2.5 bg-gray-300 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
+                                    <div class="w-2.5 h-2.5 bg-gray-300 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
+                                </div>
+                              </div>`;
+        
+        msgDiv.innerHTML = `${botAvatar}${thinkingDots}`;
+        chatLog.appendChild(msgDiv);
+    }
+
+    function updateLastBotMessage(content) {
+        const thinkingMsg = document.getElementById("thinking-message");
+        if (!thinkingMsg) return;
+
+        const botAvatar = `<div class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0 text-white font-semibold text-base shadow-sm">S</div>`;
+        const messageBubble = `
+            <div class="flex-1 min-w-0 bg-white border border-gray-200 rounded-xl rounded-tl-none p-4 shadow-sm chat-bubble-bot">
+                <div class="font-semibold text-sm text-gray-800 mb-1">ScholarBot</div>
+                <div class="message-content">${formatMessage(content)}</div>
+                <div class="mt-3 border-t border-gray-100 pt-2 flex items-center gap-1">
+                    <button onclick="playMessageAudio(this)" class="p-1.5 rounded-md hover:bg-gray-100 text-gray-500 transition-colors" title="Read Aloud" aria-label="Read Aloud">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 0 1 0 12.728M16.463 8.288a5.25 5.25 0 0 1 0 7.424M6.75 8.25l4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"></path></svg>
+                    </button>
+                    <button onclick="copyToClipboard(this)" class="p-1.5 rounded-md hover:bg-gray-100 text-gray-500" title="Copy" aria-label="Copy message content">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3.25H5.25a2 2 0 0 0-2 2v10.5a2 2 0 0 0 2 2h10.5a2 2 0 0 0 2-2V5.25a2 2 0 0 0-2-2H13.5v-1h-1v1H7.5v-1h-1v1zM6.25 5.25h8.5V16a.75.75 0 0 1-.75.75H6.5a.75.75 0 0 1-.75-.75V5.25z"/></svg>
+                    </button>
+                </div>
+            </div>`;
+
+        thinkingMsg.innerHTML = `${botAvatar}${messageBubble}`;
+        thinkingMsg.removeAttribute('id');
+    }
+    
+    function copyToClipboard(buttonElement) {
+        const messageContent = buttonElement.closest('.flex-1').querySelector('.message-content').innerText;
+        navigator.clipboard.writeText(messageContent).then(() => {
+            const originalIcon = buttonElement.innerHTML;
+            buttonElement.innerHTML = `<svg class="w-4 h-4 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg>`;
+            setTimeout(() => {
+                 buttonElement.innerHTML = originalIcon;
+            }, 2000);
+        });
+    }
+
+    // --- Core Logic ---
+    async function fetchWithTimeout(resource, options = {}) {
+      const { timeout = 8000 } = options;
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
+      const response = await fetch(resource, { ...options, signal: controller.signal });
+      clearTimeout(id);
+      return response;
+    }
+
+    async function generateChatTitle(firstQuery) {
+        try {
+            const titlePrompt = {
+                role: "user",
+                content: `Generate a very short, concise title (4 words max) for a conversation that starts with this user query: "${firstQuery}". Do not use quotes in your response.`
+            };
+            const response = await fetchWithTimeout("http://localhost:5005/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: titlePrompt.content }),
+                timeout: 5000
+            });
+            if (!response.ok) return "New Conversation";
+            const data = await response.json();
+            return data.response.trim().replace(/"/g, '') || "New Conversation";
+        } catch (error) {
+            console.error("Title generation failed:", error);
+            return "New Conversation";
+        }
+    }
+    
+    // Keywords for scraping and real-time search are now handled by the Python agent
+    async function sendMessage(input) {
+        speechSynthesis.cancel();
+        welcomeScreen.classList.add('hidden');
+        chatLog.classList.remove('hidden');
+
+        const currentChat = allChats.find(c => c.id === activeChatId);
+        if (!currentChat) return;
+
+        addMessage("You", input);
+        currentChat.history.push({ role: "user", content: input });
+        document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
+        
+        addThinkingMessage();
+        
+        try {
+            // Updated to directly use Python backend
+            const response = await fetch("http://localhost:5005/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message: input,
+                    session_id: currentChat.id.toString(),
+                    role: roleSelector.value
+                })
+            });
+
+            if (!response.ok) throw new Error(`Server error: ${response.statusText}`);
+            const data = await response.json();
+            
+            const reply = data.choices?.[0]?.message?.content || "I'm sorry, I couldn't get a response. Please try again.";
+            currentChat.history.push({ role: "assistant", content: reply });
+            updateLastBotMessage(reply);
+            
+        } catch (err) {
+            console.error(err);
+            updateLastBotMessage(`❌ **Error:** Unable to get a response. Please check the server connection and try again. (${err.message})`);
+        }
+
+        saveChats();
+        document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
+    }
+
+    function startNewChat(isInitialLoad = false) {
+        const newId = Date.now();
+        const newChat = {
+            id: newId,
+            title: "New Conversation",
+            history: [],
+            role: roleSelector.value
+        };
+        allChats.unshift(newChat);
+        activeChatId = newId;
+
+        chatLog.innerHTML = '';
+        chatLog.classList.add('hidden');
+        welcomeScreen.classList.remove('hidden');
+        chatTitle.textContent = "New Conversation";
+
+        if (!isInitialLoad) {
+          saveChats();
+        }
+        updateWelcomeScreen();
+        renderSidebar();
+    }
+
+    // --- Event Listeners ---
+    chatForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const input = userInput.value.trim();
+      if (input) {
+        sendMessage(input);
+        userInput.value = "";
+        userInput.style.height = 'auto';
+      }
+    });
+    
+    // The scrapeBtn and roleSelector logic has been simplified to work with the new unified backend
+    scrapeBtn.addEventListener("click", () => {
+      const input = userInput.value.trim();
+      if (input) {
+        sendMessage(input);
+        userInput.value = "";
+        userInput.style.height = 'auto';
+      } else {
+        alert("⚠️ Please enter a valid URL in the input box to scrape.");
+      }
+    });
+
+    roleSelector.addEventListener("change", (e) => {
+        const currentChat = allChats.find(c => c.id === activeChatId);
+        if (currentChat && currentChat.history.length === 0) {
+            currentChat.role = e.target.value;
+            saveChats();
+            updateWelcomeScreen();
+        } else if (currentChat && currentChat.history.length > 0) {
+            if(confirm("Changing roles will start a new conversation. Do you want to continue?")) {
+                startNewChat();
+            } else {
+                roleSelector.value = currentChat.role;
+            }
+        } else {
+             startNewChat();
+        }
+    });
+    
+    micBtn.addEventListener('click', () => {
+        if (!recognition) return;
+        if (isRecognizing) {
+            recognition.stop();
+        } else {
+            recognition.start();
+        }
+    });
+
+    newChatBtn.addEventListener('click', () => startNewChat());
+    
+    clearAllBtn.addEventListener('click', () => {
+        if (!confirm("Are you sure you want to delete ALL conversations? This action cannot be undone.")) return;
+        
+        allChats = [];
+        speechSynthesis.cancel();
+        saveChats();
+        startNewChat(true);
+    });
+
+    window.addEventListener("DOMContentLoaded", () => {
+        loadChats();
+        if (allChats.length === 0) {
+            startNewChat(true);
+        } else {
+            activeChatId = allChats[0].id;
+            loadChat(activeChatId);
+        }
+    });
+</script>
+</body>
+</html>

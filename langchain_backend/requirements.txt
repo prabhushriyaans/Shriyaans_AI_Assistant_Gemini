@@ -1,0 +1,14 @@
+# langchain_backend/requirements.txt
+flask
+flask-cors
+langchain
+langchain-community
+langchain-openai
+openai
+python-dotenv
+chromadb
+unstructured
+# New dependencies for real-time capabilities
+langchainhub
+duckduckgo-search
+google-search-results

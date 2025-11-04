@@ -1,0 +1,77 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from dotenv import load_dotenv
+import os
+from google import genai
+from google.genai import types
+
+# Load environment variables (override any existing stale env vars)
+load_dotenv(override=True)
+
+# Fail fast if the Google API key is missing
+google_api_key = os.getenv("GEMINI_API_KEY", "")
+if not google_api_key or google_api_key.startswith("YOUR_"):
+    raise RuntimeError(
+        "GEMINI_API_KEY is not set or still a placeholder. Set a real key in .env or the shell, then restart."
+    )
+
+# Initialize the Google Gemini client
+try:
+    client = genai.Client()
+except Exception as e:
+    raise RuntimeError(f"Error initializing Gemini client: {e}")
+
+# Define the Google Search tool configuration
+GOOGLE_SEARCH_TOOL = types.Tool(
+    google_search=types.GoogleSearch()
+)
+
+# Create a chat session with the Google Search tool enabled
+chat = client.chats.create(
+    model="gemini-2.5-flash",
+    config=types.GenerateContentConfig(
+        tools=[GOOGLE_SEARCH_TOOL]
+    )
+)
+
+app = Flask(__name__)
+CORS(app)
+
+# ==================== Unified API Endpoint ====================
+@app.route('/chat', methods=['POST'])
+def unified_chat():
+    data = request.json
+    user_input = data.get("message", "")
+
+    if not user_input:
+        return jsonify({"error": "No message provided"}), 400
+
+    try:
+        # Send the user message to the Google Gemini chat session
+        response = chat.send_message(user_input)
+
+        # Check if the model performed a search
+        search_used = False
+        if response.candidates and response.candidates[0].grounding_metadata:
+            if response.candidates[0].grounding_metadata.web_search_queries:
+                search_used = True
+
+        # Prepare the response
+        result = {
+            "response": response.text,
+            "search_used": search_used,
+        }
+
+        # Include search queries if a search was performed
+        if search_used:
+            queries = response.candidates[0].grounding_metadata.web_search_queries
+            result["search_queries"] = queries
+
+        return jsonify(result)
+    except genai.errors.APIError as e:
+        return jsonify({"error": f"API error occurred: {e}"}), 500
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error occurred: {e}"}), 500
+
+if __name__ == '__main__':
+    app.run(port=5005)
